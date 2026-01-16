@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/prabe/Desktop/credit_card_fraud_detection/styles/global.css"],"sourcesContent":["body {\r\n  background-image: url(\"/assets/credit-fraud.png\");\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n  font-family: Arial, sans-serif;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.container {\r\n  max-width: 800px;\r\n  margin: auto;\r\n  padding: 20px;\r\n  background: rgba(255,255,255,0.85);\r\n  border-radius: 10px;\r\n}\r\n\r\ninput {\r\n  width: 100px;\r\n  margin: 5px;\r\n}\r\n"],"names":[],"mappings":"AAAA;;;;;;;;;;AAUA;;;;;;;;AAQA"}}]
+}

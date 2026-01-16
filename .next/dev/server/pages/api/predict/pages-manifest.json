@@ -1,0 +1,3 @@
+{
+  "/api/predict": "pages/api/predict.js"
+}

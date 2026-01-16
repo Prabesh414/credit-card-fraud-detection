@@ -1,0 +1,22 @@
+body {
+  background-image: url("/assets/credit-fraud.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 10px;
+}
+
+input {
+  width: 100px;
+  margin: 5px;
+}
