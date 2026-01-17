@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/prabe/Desktop/credit_card_fraud_detection/pages/_app.tsx"],"sourcesContent":["// pages/_app.tsx\r\nimport type { AppProps } from \"next/app\";\r\nimport \"../styles/global.css\"; // imports your global CSS\r\n\r\nexport default function MyApp({ Component, pageProps }: AppProps) {\r\n  return <Component {...pageProps} />;\r\n}\r\n"],"names":[],"mappings":"AAAA,iBAAiB;;;;;;;;AAIF,SAAS,MAAM,EAAE,SAAS,EAAE,SAAS,EAAY;IAC9D,qBAAO,qKAAC;QAAW,GAAG,SAAS;;;;;;AACjC"}}]
-}
