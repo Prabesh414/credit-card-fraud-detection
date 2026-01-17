@@ -17,16 +17,10 @@ FEATURE_NAMES = [
 ]
 
 try:
-    # Load features from command line
     features = json.loads(sys.argv[1])
-
     df = pd.DataFrame([features], columns=FEATURE_NAMES)
-
-    # Scale and predict
     scaled = scaler.transform(df)
     prediction = rf.predict(scaled)
-
     print(json.dumps({"prediction": int(prediction[0])}))
-
 except Exception as e:
     print(json.dumps({"error": str(e)}))

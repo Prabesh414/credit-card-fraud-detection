@@ -1,61 +1,86 @@
+// pages/api/predict.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = process.env.GEMINI_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+
+if (!GEMINI_API_KEY) {
+  console.warn("GEMINI_API_KEY is not configured");
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
+  const { features } = req.body;
+  console.log("API Received Features:", features);
+
   try {
-    const { features } = req.body; // should be array of 30 numbers
-
-    if (!Array.isArray(features) || features.length !== 30) {
-      return res.status(400).json({ error: "Features must be an array of 30 numbers" });
-    }
-
-    // -----------------------------
-    // Run Python ML prediction
-    // -----------------------------
-    const pyOutput = execSync(
-      `python models/predict.py '${JSON.stringify(features)}'`,
+    // -------------------
+    // Call Python ML model
+    // -------------------
+    const py = spawnSync(
+      "python",
+      ["models/predict.py", JSON.stringify(features)],
       { encoding: "utf-8" }
     );
 
-    const pyResult = JSON.parse(pyOutput); // { prediction: 0 or 1 }
+    console.log("Python stdout:", py.stdout);
+    console.log("Python stderr:", py.stderr);
 
-    // -----------------------------
-    // Gemini API call
-    // -----------------------------
-    const prompt = `A credit card transaction has features: ${JSON.stringify(
-      features
-    )}. The ML model predicted: ${
-      pyResult.prediction === 1 ? "Fraud" : "Not Fraud"
-    }. Explain why.`;
+    const pyResult = JSON.parse(py.stdout || '{"error":"Python error"}');
 
-   const geminiRes = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta2/models/gemini-1:generateMessage?key=${GEMINI_API_KEY}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      prompt: { messages: [{ author: "user", content: prompt }] },
-      temperature: 0.6,
-      max_output_tokens: 180,
-    }),
-  }
-);
+    if (pyResult.error) {
+      return res.status(500).json({ error: pyResult.error });
+    }
 
-const geminiData = await geminiRes.json(); // read once
-console.log("Gemini response:", geminiData);
+    // -------------------
+    // Call Gemini API for reasoning using SDK
+    // -------------------
+    if (!GEMINI_API_KEY) {
+      return res.status(200).json({
+        prediction: pyResult.prediction,
+        reasoning: "Gemini API key is not configured"
+      });
+    }
 
-const reasoning =
-  geminiData?.candidates?.[0]?.content?.[0]?.text ||
-  JSON.stringify(geminiData); // show raw if something is wrong
+    const predictionText = pyResult.prediction === 1 ? "FRAUDULENT" : "LEGITIMATE";
+    const prompt = `You are an expert fraud detection analyst. A machine learning model has classified this credit card transaction as ${predictionText}.
+
+Transaction Details:
+- Prediction: ${predictionText}
+- Features: ${features.join(", ")}
+
+Provide a confident, detailed analysis (3-4 sentences) explaining:
+1. WHY this transaction is classified as ${predictionText.toLowerCase()}
+2. What specific patterns or indicators support this classification
+3. Key risk factors or safety indicators present in the data
+
+Be direct and authoritative in your explanation. Use phrases like "This transaction is clearly..." or "The data strongly indicates..." Avoid hedging language.`;
+
+    // Get the generative model
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash-exp",
+    });
+
+    // Generate content
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    const response = await result.response;
+    const reasoning = response.text();
 
     // -----------------------------
     // Send response
     // -----------------------------
-    res.status(200).json({ prediction: pyResult.prediction, reasoning });
+    res.status(200).json({
+      prediction: pyResult.prediction,
+      reasoning
+    });
+
   } catch (err: any) {
     console.error("API error:", err);
     res.status(500).json({ error: err.message || String(err) });
