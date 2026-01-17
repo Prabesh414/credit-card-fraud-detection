@@ -2,7 +2,6 @@
 
 An end-to-end full-stack application that detects fraudulent credit card transactions using a **Random Forest** machine learning model and provides automated AI analysis using **Google Gemini AI**.
 
-![Project Preview](/assets/credit-fraud.png)
 
 ## 🌟 Features
 
@@ -56,7 +55,6 @@ An end-to-end full-stack application that detects fraudulent credit card transac
    ```bash
    npm run dev
    ```
-2. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🧠 How it Works
 
